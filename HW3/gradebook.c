@@ -5,27 +5,37 @@
  * highest and lowest grades. */
 
 #include <stdio.h>
-
+#define NAME_LENGTH 32
 int main(){
   const int num_students = 10;
-  int i, grade_temp, max_grade, max_grade_index, min_grade, min_grade_index, state;
+  int i, j, grade_temp, max_grade, max_grade_index, min_grade, min_grade_index, state;
+  int char_temp;
   typedef struct student{
     int grade;
-    char name[32];
+    char name[NAME_LENGTH];
   }student;
   student students[num_students];
   min_grade = 100;
   max_grade = -1;
   for (i=0; i < num_students; i++){
     printf("What is the name of student %d?\n",i+1);
-    fflush(stdout);
-    scanf("%s",&students[i].name[0]);
+    char_temp = 0;
+    for (j=0; j < NAME_LENGTH; j++){
+      char_temp = getchar();
+      if (char_temp == ('\n') || char_temp == EOF){
+        break;
+      }else{
+        students[i].name[j] = char_temp;
+      }
+    }
     state = 1;
     // Error handling loop
     while (state > 0){
       printf("What is their grade (between 0 and 100, integer)?\n");
-      fflush(stdout);
       scanf("%d",&grade_temp);
+      //scanf leaves the \n in stdin. This prevents more names from being read
+      //So, we will manually grab that character off the buffer.
+      getchar();
       if (grade_temp <= 100 && grade_temp >= 0){
         state = 0;
         students[i].grade = grade_temp;
@@ -51,7 +61,6 @@ int main(){
       printf(" MINIMUM");
     }
     printf("\n");
-    fflush(stdout);
   }
 
 }

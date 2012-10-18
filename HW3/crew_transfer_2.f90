@@ -134,11 +134,6 @@ do i=1,transfers_remaining
   enddo
   transfers_remaining = transfers_remaining - 1
   trans = trans + 1
-  if (transfers_remaining == 0) then
-    print *, "Admiral, would you like to make more crew transfers?"
-    print *, "If so, input how many. If not, enter 0."
-    read *, transfers_remaining
-  endif
 enddo
 print *, "Very well, Admiral. Good day."
 end program crew_transfer_2
