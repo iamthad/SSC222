@@ -18,6 +18,9 @@ int main(){
   min_grade = 100;
   max_grade = -1;
   for (i=0; i < num_students; i++){
+    for (j=0; j < NAME_LENGTH; j++){
+        students[i].name[j] = 0; //Zero out each name to prevent junk characters.
+        }
     printf("What is the name of student %d?\n",i+1);
     char_temp = 0;
     for (j=0; j < NAME_LENGTH; j++){
