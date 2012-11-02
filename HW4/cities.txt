@@ -1,0 +1,9 @@
+Austin	Chicago
+Houston	Denver
+Denver	Long Island
+Chicago	Long Island
+Austin	Houston
+Dallas	Denver
+Denver	Phoenix
+Chicago	Orlando
+Houston	Orlando
