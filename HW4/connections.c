@@ -31,6 +31,40 @@ void check_file_shape(FILE *file,char delimiter,int *lines, int *cols, int *max_
   }
 }
 
+int get_city_index(char city_array[], int num_cities, int name_length, char search_city[]){
+  int i,j,index;
+  char cities[num_cities][name_length];
+  for(i=0;i<num_cities;i++){
+    for(j=0;j<name_length;j++){
+      cities[i][j] = city_array[j+name_length*i];
+    }
+  }
+  index = -1; //Indicate errors
+
+  for(i=0;i<num_cities;i++){
+    if(!strcmp(search_city,cities[i])){
+      index = i;
+      break;
+    }
+  }
+  return index;
+}
+
+void get_input(char input[], int input_length){
+  int i, char_temp;
+  for (i=0; i < input_length; i++)
+    input[i]=0;
+  for (i=0; i < input_length; i++){
+    char_temp = getchar();
+    if (char_temp == ('\n') || char_temp == EOF){
+      break;
+    }else{
+      input[i] = char_temp;
+    }
+  }
+}
+
+
 int main(int argc, char *argv[]){
   FILE *file;
   int num_lines = 0;
@@ -90,20 +124,16 @@ int main(int argc, char *argv[]){
     for(j=0;j<i;j++){
       j_row = j/(num_cols);
       j_col = j%(num_cols);
-      printf("[%d,%d] %s : [%d,%d] %s\n",i_row,i_col,raw_data[i_row][i_col],j_row,j_col,raw_data[j_row][j_col]);
       // strcmp returns 0 if matching, non-0 if non-matching. This is non-intuitive.
       if(!strcmp(raw_data[i_row][i_col],raw_data[j_row][j_col])){
         matches = 1;
-        printf("Matches!\n");
         break;
       }
     }
     if (matches==0){
       num_cities++;
-      printf("Unique!\n");
     }
   }
-  printf("%d cities, %d unique.\n",num_lines*num_cols,num_cities);
   char cities[num_cities][max_fieldlength];
 
   k = 0;
@@ -143,29 +173,31 @@ int main(int argc, char *argv[]){
   // 1 indicates cities are connected. This could be replaced with a distance value if minimum-distance route was desired.
   for(i=0;i<num_lines;i++){
     // Find the index of the city name in cities
-    for(j=0;j<num_cities;j++){
-      if(!strcmp(raw_data[i][0],cities[j])){
-        from_index = j;
-        break;
-      }
-    }
-    for(j=0;j<num_cities;j++){
-      if(!strcmp(raw_data[i][1],cities[j])){
-        to_index = j;
-        break;
-      }
-    }
+    from_index = get_city_index(&cities[0][0],num_cities,max_fieldlength,raw_data[i][0]);
+    to_index = get_city_index(&cities[0][0],num_cities,max_fieldlength,raw_data[i][1]);
     connections[from_index][to_index]=1;
     /* If connections are reciprocal:
      * connections[to_index][from_index]=1; */
     printf("%s connects to %s\n",cities[from_index],cities[to_index]);
   }
+
   for(i=0;i<num_cities;i++){
     for(j=0;j<num_cities;j++){
       printf("%+d ",connections[i][j]);
     }
     printf("\n");
   }
+  char from_city[max_fieldlength],to_city[max_fieldlength];
+
+  printf("Which city would you like to travel from? \n");
+  get_input(from_city,max_fieldlength);
+  from_index = get_city_index(&cities[0][0],num_cities,max_fieldlength,from_city);
+  printf("%s is city %d\n",from_city,from_index);
+
+  printf("Which city would you like to travel to? \n");
+  get_input(to_city,max_fieldlength);
+  from_index = get_city_index(&cities[0][0],num_cities,max_fieldlength,to_city);
+  printf("%s is city %d\n",to_city,to_index);
 
 
 
