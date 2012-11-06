@@ -71,6 +71,8 @@ int main(int argc, char *argv[]){
   int num_cols = 0;
   int max_fieldlength = 0;
   int i,j,k,i_row,i_col,j_row,j_col,num_cities,matches,from_index,to_index;
+  int from_city_set = 0;
+  int to_city_set = 0;
   int c = 0;
   char delimiter = '\t';
   file = fopen(argv[1], "r");
@@ -136,6 +138,8 @@ int main(int argc, char *argv[]){
   }
   char cities[num_cities][max_fieldlength];
 
+  // Fill cities with the unique city names. Indices become city ID numbers.
+
   k = 0;
   for(i=0;i<(num_lines*num_cols);i++){
     matches = 0;
@@ -144,7 +148,6 @@ int main(int argc, char *argv[]){
     for(j=0;j<i;j++){
       j_row = j/(num_cols);
       j_col = j%(num_cols);
-      // strcmp returns 0 if matching, non-0 if non-matching. This is non-intuitive.
       if(!strcmp(raw_data[i_row][i_col],raw_data[j_row][j_col])){
         matches = 1;
         break;
@@ -175,6 +178,10 @@ int main(int argc, char *argv[]){
     // Find the index of the city name in cities
     from_index = get_city_index(&cities[0][0],num_cities,max_fieldlength,raw_data[i][0]);
     to_index = get_city_index(&cities[0][0],num_cities,max_fieldlength,raw_data[i][1]);
+    if(from_index == -1 || to_index == -1){
+      fprintf(stderr,"Invalid city indices.\n");
+      exit(1);
+    }
     connections[from_index][to_index]=1;
     /* If connections are reciprocal:
      * connections[to_index][from_index]=1; */
@@ -189,14 +196,28 @@ int main(int argc, char *argv[]){
   }
   char from_city[max_fieldlength],to_city[max_fieldlength];
 
-  printf("Which city would you like to travel from? \n");
-  get_input(from_city,max_fieldlength);
-  from_index = get_city_index(&cities[0][0],num_cities,max_fieldlength,from_city);
+  while(from_city_set==0){
+    printf("Which city would you like to travel from? \n");
+    get_input(from_city,max_fieldlength);
+    from_index = get_city_index(&cities[0][0],num_cities,max_fieldlength,from_city);
+    if(from_index == -1){
+      fprintf(stderr,"City %s not found.\n",from_city);
+    }else{
+      from_city_set=1;
+    }
+  }
   printf("%s is city %d\n",from_city,from_index);
 
-  printf("Which city would you like to travel to? \n");
-  get_input(to_city,max_fieldlength);
-  from_index = get_city_index(&cities[0][0],num_cities,max_fieldlength,to_city);
+  while(to_city_set==0){
+    printf("Which city would you like to travel to? \n");
+    get_input(to_city,max_fieldlength);
+    to_index = get_city_index(&cities[0][0],num_cities,max_fieldlength,to_city);
+    if(to_index == -1){
+      fprintf(stderr,"City %s not found.\n",to_city);
+    }else{
+      to_city_set=1;
+    }
+  }
   printf("%s is city %d\n",to_city,to_index);
 
 
