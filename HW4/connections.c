@@ -184,12 +184,6 @@ int main(int argc, char *argv[]){
     printf("%s connects to %s\n",cities[from_index],cities[to_index]);
   }
 
-  for(i=0;i<num_cities;i++){
-    for(j=0;j<num_cities;j++){
-      printf("%+d ",connections[i][j]);
-    }
-    printf("\n");
-  }
   char from_city[max_fieldlength],to_city[max_fieldlength];
 
   while(from_city_set==0){
