@@ -137,6 +137,7 @@ int main(int argc, char *argv[]){
     }
   }
   char cities[num_cities][max_fieldlength];
+  printf("%d cities:\n",num_cities);
 
   // Fill cities with the unique city names. Indices become city ID numbers.
 
@@ -155,6 +156,7 @@ int main(int argc, char *argv[]){
     }
     if (matches==0){
       strcpy(cities[k],raw_data[i_row][i_col]);
+      printf("%s\n",cities[k]);
       k++;
     }
   }
@@ -209,6 +211,7 @@ int main(int argc, char *argv[]){
     }
   }
   printf("%s is city %d\n",to_city,to_index);
+
 
 
 
