@@ -164,14 +164,10 @@ int main(int argc, char *argv[]){
   // -1 indicates cities are not connected
   for(i=0;i<num_cities;i++){
     for(j=0;j<num_cities;j++){
-      connections[i][j] = -1;
+      connections[i][j] = 0;
     }
   }
 
-  // 0 indicates same city
-  for(i=0;i<num_cities;i++){
-    connections[i][i] = 0;
-  }
 
   // 1 indicates cities are connected. This could be replaced with a distance value if minimum-distance route was desired.
   for(i=0;i<num_lines;i++){
