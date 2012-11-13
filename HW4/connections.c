@@ -212,6 +212,29 @@ int main(int argc, char *argv[]){
   }
   printf("%s is city %d\n",to_city,to_index);
 
+  int path[num_cities]; // Maximum of num_cities places to go from each city
+  int num_possibilities = 0;
+  int possibilities[num_cities];
+  int indices[num_cities];
+  int depth = 0;
+
+  // Starting point is first possibility.
+
+  path[0] = from_index;
+  do{
+    for(i=0;i<num_cities;i++){
+      if(connections[path[depth]][i] == 1){
+        possibilities[num_possibilities]=i;
+        num_possibilities++;
+      }
+      path[depth++]=possibilities[indices[depth]];
+      depth++;
+
+
+
+
+
+
 
 
 
