@@ -18,3 +18,5 @@ void insertBefore(dll * list, dln * node, dln * new);
 void insertBeginning(dll * list, dln * new);
 void insertEnd(dll * list, dln * node);
 void dllremove(dll * list, dln * node);
+void dllclear(dll * list);
+void dllfree(dll * list);

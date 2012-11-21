@@ -2,38 +2,6 @@
 #include <stdlib.h>
 #include "doubly_linked_list.h"
 
-/*int main(){
-  dll a;
-  dln * x, * y, * z, * t;
-  a.first = NULL;
-  a.last = NULL;
-  x = malloc(sizeof(dln));
-  insertBeginning(&a,x);
-  x -> val = 1;
-  printf("x at: %p,val = %d, next = %p, prev = %p\n",x,x->val,x->next,x->prev);
-  y = malloc(sizeof(dln));
-  insertEnd(&a,y);
-  y -> val = 3;
-  z = malloc(sizeof(dln));
-  printf("y at: %p,val = %d, next = %p, prev = %p\n",y,y->val,y->next,y->prev);
-  insertBefore(&a,y,z);
-  t = a.first;
-  printf("z at: %p,val = %d, next = %p, prev = %p\n",z,z->val,z->next,z->prev);
-
-  do{
-    printf("At %p: %d\n",t,t->val);
-    printf("Changing to %p\n",t->next);
-    t = t->next;
-  }while (t -> next != NULL);
-
-
-
-
-
-
-  return 0;
-
-}*/
 void insertAfter(dll * list, dln * node, dln * new){
   new -> prev = node;
   new -> next = node -> next;
@@ -83,3 +51,19 @@ void dllremove(dll * list, dln * node){
     node -> next -> prev = node -> prev;
   free(node);
 }
+
+void dllclear(dll * list){
+  dln * node, * next;
+  node = list -> first;
+  while(node != NULL){
+    next = node -> next;
+    dllremove(list,node);
+    node = next;
+  }
+}
+
+void dllfree(dll * list){
+  dllclear(list);
+  free(list);
+}
+

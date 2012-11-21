@@ -3,15 +3,9 @@
 #include "doubly_linked_list.h"
 #include "fasta.h"
 
-#define SCANNING_HEADER 1
-#define SCANNING_SEQUENCE 2
-#define READING_HEADER 3
-#define READING_SEQUENCE 4
-#define HEADER_LENGTH 80
-
 int fasta_read(char * filename, dll * sequences){
 
-  FILE *file;
+  FILE *file, *debugfile;
   int num_sequences = 0;
   int c=0;
   int mode = 0;
@@ -19,25 +13,27 @@ int fasta_read(char * filename, dll * sequences){
   int sequence_length = 0;
   int sequence_index = 0;
   int header_index = 0;
+  dln * sequence = NULL;
 
-  file = fopen(*filename, "r");
+  file = fopen(filename, "r");
   if(file == NULL){
     perror("Error with input file");
     exit(1);
   }
+  debugfile = fopen("/dev/null/","w");
   do{
     c = fgetc(file);
     switch (c){
       case '\n':
         if (mode == SCANNING_HEADER){
           mode = SCANNING_SEQUENCE;
-          printf("Scanning sequence.\n");
+          fprintf(debugfile,"Scanning sequence.\n");
         }
 
         if (mode == READING_HEADER){
           mode = READING_SEQUENCE;
           sequence_index = 0;
-          printf("Reading sequence.\n");
+          fprintf(debugfile,"Reading sequence.\n");
         }
         break;
 
@@ -45,20 +41,24 @@ int fasta_read(char * filename, dll * sequences){
         switch (mode){
           case SCANNING_SEQUENCE:
             fseek(file,location,SEEK_SET);
-            if (temp != NULL)
-              insertEnd(&sequences,temp);
-            initialize_sequence(temp, sequence_length);
+            if (sequence != NULL){
+              fprintf(debugfile,"Putting sequence into list at location %p\n",sequences);
+              insertEnd(sequences,sequence);
+            }
+            fprintf(debugfile,"Initialize sequence.\n");
+            sequence = initialize_sequence(sequence_length);
+            fprintf(debugfile,"%p\n",sequence);
             sequence_length = 0;
             mode = READING_HEADER;
             header_index = 0;
-            printf("Reading header.\n");
+            fprintf(debugfile,"Reading header.\n");
             break;
           case READING_SEQUENCE:
           default:
             mode = SCANNING_HEADER;
-            printf("Scanning header.\n");
+            fprintf(debugfile,"Scanning header.\n");
             location = ftell(file);
-            printf("Location: %d\n",location);
+            fprintf(debugfile,"Location: %d\n",location);
             break;
         }
         num_sequences++;
@@ -68,16 +68,17 @@ int fasta_read(char * filename, dll * sequences){
         switch (mode){
           case SCANNING_SEQUENCE:
             fseek(file,location,SEEK_SET);
-            if (temp != NULL)
-              insertEnd(&sequences,temp);
-            initialize_sequence(temp, sequence_length);
+            if (sequence != NULL)
+              insertEnd(sequences,sequence);
+            sequence = initialize_sequence(sequence_length);
+            fprintf(debugfile,"%p\n",sequence);
             sequence_length = 0;
             mode = READING_HEADER;
             header_index = 0;
-            printf("Reading header.\n");
+            fprintf(debugfile,"Reading header.\n");
             break;
           case READING_SEQUENCE:
-            insertEnd(&sequences,temp);
+            insertEnd(sequences,sequence);
             break;
           default:
             fprintf(stderr,"Hit end of file unexpectedly.\n");
@@ -98,20 +99,30 @@ int fasta_read(char * filename, dll * sequences){
               fprintf(stderr,"Header would have overflowed.\n");
               exit(1);
             }
-            temp -> header[header_index] = c;
-            header_index++;
+            if(sequence != NULL){
+              sequence -> header[header_index] = c;
+              header_index++;
+            }else{
+              fprintf(stderr,"Sequence does not exist.\n");
+              exit(1);
+            }
             break;
           case READING_SEQUENCE:
-            if (sequence_index > temp -> sequence_length){
+            if (sequence_index > sequence -> sequence_length){
               fprintf(stderr,"Sequence would have overflowed.\n");
               exit(1);
             }
-            temp -> data[sequence_index] = c;
-            sequence_index++;
+            if(sequence != NULL){
+              sequence -> data[sequence_index] = c;
+              sequence_index++;
+            }else{
+              fprintf(stderr,"Sequence does not exist.\n");
+              exit(1);
+            }
             break;
         }
     }
-  }while(c!=EOF);
+  }while(!feof(file));
 
 
 
@@ -121,8 +132,63 @@ int fasta_read(char * filename, dll * sequences){
 
 }
 
-int initialize_sequence(dln * sequence, int sequence_length){
-  sequence = malloc(sizeof(dln)+(sequence_length+1)*sizeof(char));
+int fasta_write(char * filename, dll * sequences){
+  FILE *file;
+  dln * sequence;
+  file = fopen(filename,"w");
+  int i, column = 0, c;
+  int column_length = 60;
+  if(file == NULL){
+    perror("Error with output file");
+    exit(1);
+  }
+  if(sequences == NULL){
+    fprintf(stderr,"Sequences is undefined for writing.\n");
+    exit(1);
+  }
+  sequence = sequences -> first;
+  while(sequence != NULL){
+    // Print header
+    fprintf(file,">");
+    for(i=0;i<=HEADER_LENGTH; i++){
+      c = sequence->header[i];
+      if(c != 0)
+        fprintf(file,"%c",c);
+      else{
+        break;
+      }
+    }
+    fprintf(file,"\n");
+
+    // Print sequence
+    for(i=0;i<=sequence->sequence_length;i++){
+      c = sequence->data[i];
+      if(c != 0){
+        fprintf(file,"%c",c);
+        column++;
+      }
+      else{
+        fprintf(file,"\n");
+        column = 0;
+        break;
+      }
+      if(column==column_length){
+        fprintf(file,"\n");
+        column = 0;
+      }
+    }
+    fprintf(file,"\n");
+    sequence = sequence->next;
+  }
+  return 0;
+
+}
+
+dln * initialize_sequence(int sequence_length){
+  int i, length;
+  dln * sequence;
+  length = sizeof(dln)+(sequence_length+1)*sizeof(char);
+  sequence = malloc(length);
   if(sequence != NULL){
     sequence -> sequence_length = sequence_length;
     for(i = 0; i<=sequence_length; i++){
@@ -131,7 +197,7 @@ int initialize_sequence(dln * sequence, int sequence_length){
     for(i = 0; i<=HEADER_LENGTH; i++){
       sequence -> header[i] = 0;
     }
-    return 0;
+    return sequence;
   }else{
     fprintf(stderr,"Error allocating memory.\n");
     exit(1);
