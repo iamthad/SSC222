@@ -125,8 +125,6 @@ int fasta_write(char * filename, dll * sequences, int column_length){
   FILE *file;
   dln * sequence;
   file = fopen(filename,"w");
-  int i, column = 0;
-  char c;
   if(file == NULL){
     perror("Error with output file");
     exit(1);
@@ -137,36 +135,33 @@ int fasta_write(char * filename, dll * sequences, int column_length){
   }
   sequence = sequences -> first;
   while(sequence != NULL){
-    // Print header
-    fprintf(file,">");
-    for(i=0;i<=HEADER_LENGTH; i++){
-      c = sequence->header[i];
-      if(c != 0)
-        fprintf(file,"%c",c);
-      else{
-        break;
-      }
-    }
-    fprintf(file,"\n");
-
-    // Print sequence
-    for(i=0;i<=sequence->sequence_length;i++){
-      c = sequence->data[i];
-      if(c != 0){
-        fprintf(file,"%c",c);
-        column++;
-      }
-      if(column==column_length){
-        fprintf(file,"\n");
-        column = 0;
-      }
-    }
+    print_sequence(file,sequence->sequence_length,sequence->header,sequence->data,column_length);
     sequence = sequence->next;
-    fprintf(file,"\n");
   }
+  fclose(file);
   return 0;
 
 }
+
+void print_sequence(FILE* file, int sequence_length, char * header, char * data, int column_length){
+  char c;
+  int i;
+  int column = 0;
+  fprintf(file,">%s",header);
+  for(i=0;i<=sequence_length;i++){
+    c = data[i];
+    if(c != 0){
+      fprintf(file,"%c",c);
+      column++;
+    }
+    if(column==column_length){
+      fprintf(file,"\n");
+      column = 0;
+    }
+  }
+  fprintf(file,"\n");
+}
+  
 
 dln * initialize_sequence(int sequence_length, int id){
   int i, length;

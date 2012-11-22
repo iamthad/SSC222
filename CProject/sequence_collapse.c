@@ -3,7 +3,7 @@
 #include <string.h>
 #include "doubly_linked_list.h"
 #include "fasta.h"
-void collapsesequences(dll * inputlist, dll * outputlist);
+#include "sequence_collapse.h"
 
 int main(int argc, char*argv[]){
   char * inputfilename;
@@ -13,9 +13,6 @@ int main(int argc, char*argv[]){
   dll sequences;
   sequences.first = NULL;
   sequences.last = NULL;
-  dll collapsed;
-  collapsed.first = NULL;
-  collapsed.last = NULL;
 
   inputfilename = &defaultinputfilename[0];
   outputfilename = &defaultoutputfilename[0];
@@ -29,18 +26,17 @@ int main(int argc, char*argv[]){
   printf("Reading sequences from file %s\n",inputfilename);
   fasta_read(inputfilename,&sequences);
   printf("Collapsing sequences. \n");
-  collapsesequences(&sequences,&collapsed);
-  printf("Writing sequences to file %s\n",outputfilename);
-  fasta_write(outputfilename,&sequences,-1);
   printf("Sequences collapsed: \n");
-  fasta_write("collapsed.fasta",&collapsed,-1);
+  collapsesequences(&sequences);
+  printf("Writing remaining sequences to file %s\n",outputfilename);
+  fasta_write(outputfilename,&sequences,-1);
 
   dllclear(&sequences);
   return 0;
 }
 
-void collapsesequences(dll * inputlist, dll * outputlist){
-  dln * current, * compare, *next, *nextcompare, *temp;
+void collapsesequences(dll * inputlist){
+  dln * current, * compare, *next, *nextcompare;
   current = inputlist -> first;
   while(current != NULL){
     //printf("Comparing sequence %d\n",current->id);
@@ -51,13 +47,11 @@ void collapsesequences(dll * inputlist, dll * outputlist){
       nextcompare = compare->next;
       // Make sure we are not comparing to the same sequence.
       if((current->id != compare->id)&&(strstr(compare->data,current->data)!= NULL)){
-        // One node cannot be in two lists. So, create a new node with the same data and put it in the output list.
-        //printf("Match found. \n");
-        temp = initialize_sequence(current->sequence_length,current->id);
-        strncpy(temp->header,current->header,HEADER_LENGTH*sizeof(char));
-        strncpy(temp->data,current->data,current->sequence_length*sizeof(char));
-        insertEnd(outputlist,temp);
         dllremove(inputlist,current);
+
+        print_sequence(stdout,current->sequence_length,current->header,current->data,80);
+          
+        
         break;
       }
       compare = nextcompare;

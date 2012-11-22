@@ -6,4 +6,5 @@
 
 int fasta_read(char * filename, dll * sequences);
 int fasta_write(char * filename, dll * sequences, int column_length);
+void print_sequence(FILE* file, int sequence_length, char * header, char * data, int column_length);
 dln * initialize_sequence(int sequence_length, int id);
