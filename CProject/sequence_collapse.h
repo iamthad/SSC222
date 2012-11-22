@@ -1,0 +1,1 @@
+void collapsesequences(dll * inputlist);
