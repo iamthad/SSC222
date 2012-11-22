@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "combined.h"
+#include "sequence_collapse.h"
 
 int main(int argc, char*argv[]){
   char * inputfilename;
