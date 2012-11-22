@@ -41,7 +41,7 @@ int fasta_read(char * filename, dll * sequences){
             if (sequence != NULL){
               insertEnd(sequences,sequence);
             }
-            sequence = initialize_sequence(sequence_length);
+            sequence = initialize_sequence(sequence_length,num_sequences);
             sequence_length = 0;
             mode = READING_HEADER;
             header_index = 0;
@@ -50,9 +50,9 @@ int fasta_read(char * filename, dll * sequences){
           default:
             mode = SCANNING_HEADER;
             location = ftell(file);
+            num_sequences++;
             break;
         }
-        num_sequences++;
         break;
 
       case EOF:
@@ -61,7 +61,7 @@ int fasta_read(char * filename, dll * sequences){
             fseek(file,location,SEEK_SET);
             if (sequence != NULL)
               insertEnd(sequences,sequence);
-            sequence = initialize_sequence(sequence_length);
+            sequence = initialize_sequence(sequence_length,num_sequences);
             sequence_length = 0;
             mode = READING_HEADER;
             header_index = 0;
@@ -168,13 +168,14 @@ int fasta_write(char * filename, dll * sequences, int column_length){
 
 }
 
-dln * initialize_sequence(int sequence_length){
+dln * initialize_sequence(int sequence_length, int id){
   int i, length;
   dln * sequence;
   length = sizeof(dln)+(sequence_length+1)*sizeof(char);
   sequence = malloc(length);
   if(sequence != NULL){
     sequence -> sequence_length = sequence_length;
+    sequence -> id = id;
     for(i = 0; i<=sequence_length; i++){
       sequence -> data[i] = 0;
     }

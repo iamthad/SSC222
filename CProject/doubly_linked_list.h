@@ -3,6 +3,7 @@ struct dln {
   struct dln * prev;
   struct dln * next;
   int sequence_length;
+  int id;
   char header[HEADER_LENGTH + 1];
   char data[];
 };
