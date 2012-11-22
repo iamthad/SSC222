@@ -5,7 +5,7 @@
 
 int fasta_read(char * filename, dll * sequences){
 
-  FILE *file, *debugfile;
+  FILE *file;
   int num_sequences = 0;
   int c=0;
   int mode = 0;
@@ -20,20 +20,17 @@ int fasta_read(char * filename, dll * sequences){
     perror("Error with input file");
     exit(1);
   }
-  debugfile = fopen("/dev/null/","w");
   do{
     c = fgetc(file);
     switch (c){
       case '\n':
         if (mode == SCANNING_HEADER){
           mode = SCANNING_SEQUENCE;
-          fprintf(debugfile,"Scanning sequence.\n");
         }
 
         if (mode == READING_HEADER){
           mode = READING_SEQUENCE;
           sequence_index = 0;
-          fprintf(debugfile,"Reading sequence.\n");
         }
         break;
 
@@ -42,23 +39,17 @@ int fasta_read(char * filename, dll * sequences){
           case SCANNING_SEQUENCE:
             fseek(file,location,SEEK_SET);
             if (sequence != NULL){
-              fprintf(debugfile,"Putting sequence into list at location %p\n",sequences);
               insertEnd(sequences,sequence);
             }
-            fprintf(debugfile,"Initialize sequence.\n");
             sequence = initialize_sequence(sequence_length);
-            fprintf(debugfile,"%p\n",sequence);
             sequence_length = 0;
             mode = READING_HEADER;
             header_index = 0;
-            fprintf(debugfile,"Reading header.\n");
             break;
           case READING_SEQUENCE:
           default:
             mode = SCANNING_HEADER;
-            fprintf(debugfile,"Scanning header.\n");
             location = ftell(file);
-            fprintf(debugfile,"Location: %d\n",location);
             break;
         }
         num_sequences++;
@@ -71,11 +62,9 @@ int fasta_read(char * filename, dll * sequences){
             if (sequence != NULL)
               insertEnd(sequences,sequence);
             sequence = initialize_sequence(sequence_length);
-            fprintf(debugfile,"%p\n",sequence);
             sequence_length = 0;
             mode = READING_HEADER;
             header_index = 0;
-            fprintf(debugfile,"Reading header.\n");
             break;
           case READING_SEQUENCE:
             insertEnd(sequences,sequence);
@@ -132,12 +121,12 @@ int fasta_read(char * filename, dll * sequences){
 
 }
 
-int fasta_write(char * filename, dll * sequences){
+int fasta_write(char * filename, dll * sequences, int column_length){
   FILE *file;
   dln * sequence;
   file = fopen(filename,"w");
-  int i, column = 0, c;
-  int column_length = 60;
+  int i, column = 0;
+  char c;
   if(file == NULL){
     perror("Error with output file");
     exit(1);
@@ -167,18 +156,13 @@ int fasta_write(char * filename, dll * sequences){
         fprintf(file,"%c",c);
         column++;
       }
-      else{
-        fprintf(file,"\n");
-        column = 0;
-        break;
-      }
       if(column==column_length){
         fprintf(file,"\n");
         column = 0;
       }
     }
-    fprintf(file,"\n");
     sequence = sequence->next;
+    fprintf(file,"\n");
   }
   return 0;
 

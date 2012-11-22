@@ -5,5 +5,5 @@
 #define HEADER_LENGTH 80
 
 int fasta_read(char * filename, dll * sequences);
-int fasta_write(char * filename, dll * sequences);
+int fasta_write(char * filename, dll * sequences, int column_length);
 dln * initialize_sequence(int sequence_length);
