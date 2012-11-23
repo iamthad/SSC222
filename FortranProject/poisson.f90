@@ -69,7 +69,7 @@ forall (i=1:m-2,j=1:n-2) & f(i,j) = func(x(i+1),y(j+1))
 dx_neg2 = (real(m)-1)**2
 dy_neg2 = (real(n)-1)**2
 ! Precompute the denominator of the entire function
-denom = -2*(dx_neg2+dy_neg2)
+denom = 2*(dx_neg2+dy_neg2)
 
 ! Do the iteration
 do k=1, max_iter
