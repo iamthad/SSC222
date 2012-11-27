@@ -149,7 +149,7 @@ int fasta_read(char * filename, dll * sequences){
 
   FILE *file;
   int n_sequences = 0; // Number of sequences read so far. Used as unique ID
-  int c=0; // Temporary variable for each character
+  char c=0; // Temporary variable for each character
   int mode = 0; // Keeps track of the mode that the reader is operating in
   int location = 0; // Location in the file
   int sequence_length = 0; // Length of the current sequence
@@ -329,7 +329,7 @@ void print_sequence(FILE* file, int sequence_length, char * header, char * data,
   fprintf(file,">%s\n",header);
   for(i=0;i<=sequence_length;i++){
     c = data[i];
-    if(c != 0){
+    if(c >= 32 && c <= 126){ // Printable characters only
       fprintf(file,"%c",c);
       column++;
     }
