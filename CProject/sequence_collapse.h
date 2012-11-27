@@ -27,7 +27,7 @@ struct dll {
 typedef struct dln dln;
 typedef struct dll dll;
 
-void collapsesequences(dll * inputlist);
+int collapsesequences(dll * inputlist);
 void dln_insert_after(dll * list, dln * node, dln * new);
 void dln_insert_before(dll * list, dln * node, dln * new);
 void dln_insert_beginning(dll * list, dln * new);

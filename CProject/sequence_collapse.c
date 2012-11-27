@@ -8,6 +8,7 @@ int main(int argc, char*argv[]){
   char * outputfilename;
   char defaultinputfilename[] = "input.fasta";
   char defaultoutputfilename[] = "output.fasta";
+  int n_collapsed, n_sequences;
   dll sequences;
   sequences.first = NULL;
   sequences.last = NULL;
@@ -22,10 +23,12 @@ int main(int argc, char*argv[]){
       inputfilename = argv[1];
     }
   printf("Reading sequences from file %s\n",inputfilename);
-  fasta_read(inputfilename,&sequences);
+  n_sequences = fasta_read(inputfilename,&sequences);
+  printf("%d sequences.\n",n_sequences);
   printf("Collapsing sequences. \n");
   printf("Sequences collapsed: \n");
-  collapsesequences(&sequences);
+  n_collapsed = collapsesequences(&sequences);
+  printf("%d sequences collapsed.\n",n_collapsed);
   printf("Writing remaining sequences to file %s\n",outputfilename);
   fasta_write(outputfilename,&sequences,-1);
 
@@ -33,8 +36,9 @@ int main(int argc, char*argv[]){
   return 0;
 }
 
-void collapsesequences(dll * inputlist){
+int collapsesequences(dll * inputlist){
   dln * current, * compare, *next, *nextcompare;
+  int n_collapsed = 0;
   current = inputlist -> first;
   while(current != NULL){
     //printf("Comparing sequence %d\n",current->id);
@@ -48,6 +52,7 @@ void collapsesequences(dll * inputlist){
         dln_remove(inputlist,current);
 
         print_sequence(stdout,current->sequence_length,current->header,current->data,80);
+        n_collapsed++;
           
         
         break;
@@ -56,6 +61,7 @@ void collapsesequences(dll * inputlist){
     }
     current = next;
   }
+  return n_collapsed;
 }
 
 // Doubly-linked list handling functions based on examples on Wikipedia.
@@ -286,7 +292,7 @@ int fasta_read(char * filename, dll * sequences){
 
   fclose(file);
 
-  return 0;
+  return n_sequences;
 
 }
 
